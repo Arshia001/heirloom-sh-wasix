@@ -49,6 +49,7 @@ static const struct rlimtab {
 	char	*scale;
 	rlim_t	divisor;
 } rlimtab[] = {
+#ifndef __wasi__
 	{ RLIMIT_CORE,	 	"coredump",	"blocks",	512 },
 	{ RLIMIT_DATA,	 	"data",		"kbytes",	1024 },
 	{ RLIMIT_FSIZE, 	"file",		"blocks",	512 },
@@ -66,6 +67,7 @@ static const struct rlimtab {
 #endif
 #ifdef	RLIMIT_AS
 	{ RLIMIT_AS,	 	"memory",	"kbytes",	1024 },
+#endif
 #endif
 	{ -1,			NULL,		NULL,		0 }
 };
@@ -103,6 +105,7 @@ sysulimit(int argc, char **argv)
 		case 'H':
 			hard++;
 			continue;
+#ifndef __wasi__
 		case 'a':
 			if (res)
 				goto fail;
@@ -162,14 +165,17 @@ sysulimit(int argc, char **argv)
 			resources[res++] = RLIMIT_AS;
 			break;
 #endif
+#endif
 		default:
 		case '?':
 			goto fail;
 		}
 	}
 
+#ifndef __wasi__
 	if (res == 0)
 		resources[res++] = RLIMIT_FSIZE;
+#endif
 
 	/*
 	 * if out of arguments, then print the specified resources
